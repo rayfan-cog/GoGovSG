@@ -12,3 +12,16 @@ pull_request_rules:
         type: APPROVE
       merge:
         method: squash
+  - name: Approve and merge grouped non-major dependabot upgrades
+    conditions:
+      - author~=^dependabot(|-preview)\[bot\]$
+      - check-success~=CI
+      - check-success~=Test
+      - check-success~=CodeQL
+      - check-success~=End To End Tests
+      - title~=^build\(deps[^)]*\). bump the npm-minor-and-patch group
+    actions:
+      review:
+        type: APPROVE
+      merge:
+        method: squash
