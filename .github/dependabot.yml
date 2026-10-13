@@ -5,9 +5,11 @@
 # Group order matters: the first matching group wins.
 #
 # Version updates are weekly and capped so they do not flood the PR queue.
-# Non-major bumps are grouped into a few PRs that Mergify auto-merges (see
-# .github/mergify.yml); major bumps stay as individual PRs for human/Devin
-# review because they usually need code changes.
+# Packages outside the named groups get their non-major bumps in the
+# npm-minor-and-patch group, which Mergify auto-merges (see .github/mergify.yml);
+# their major bumps stay as individual PRs for human/Devin review. Named groups
+# below are unchanged and may still bundle majors (Mergify's title rule skips
+# those, so they also wait for review).
 
 version: 2
 updates:
