@@ -11,6 +11,9 @@ import { UrlThreatScanService } from './interfaces/index.js'
 import { DependencyIds } from '../../constants.js'
 import { logger } from '../../config.js'
 
+export const SCAN_FAILED_MESSAGE =
+  'Error checking link, please try again. If the error persists, please contact us.'
+
 @injectable()
 export class UrlCheckController {
   private urlThreatScanService: UrlThreatScanService
@@ -20,6 +23,14 @@ export class UrlCheckController {
     urlThreatScanService: UrlThreatScanService,
   ) {
     this.urlThreatScanService = urlThreatScanService
+  }
+
+  // Scan errors may embed the Web Risk API key (e.g. in a FetchError's
+  // request URL), so only a fixed message is returned to the client.
+  private static handleScanFailure(error: unknown, res: Response): void {
+    dogstatsd.increment(SCAN_FAILED_LINK, 1, 1)
+    logger.error(error)
+    res.serverError(jsonMessage(SCAN_FAILED_MESSAGE))
   }
 
   singleUrlCheck: (
@@ -48,9 +59,7 @@ export class UrlCheckController {
           return
         }
       } catch (error) {
-        dogstatsd.increment(SCAN_FAILED_LINK, 1, 1)
-        logger.error(error)
-        res.serverError(jsonMessage((error as Error).message))
+        UrlCheckController.handleScanFailure(error, res)
         return
       }
     }
@@ -82,8 +91,7 @@ export class UrlCheckController {
           return
         }
       } catch (error) {
-        logger.error(error)
-        res.serverError(jsonMessage((error as Error).message))
+        UrlCheckController.handleScanFailure(error, res)
         return
       }
     }
