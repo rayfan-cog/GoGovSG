@@ -13,6 +13,7 @@ on:
     branches: [develop]
   schedule:
     - cron: '0 10 * * *'
+  workflow_dispatch:
 
 jobs:
   analyze:
@@ -47,8 +48,8 @@ jobs:
           languages: ${{matrix.language}}
           build-mode: ${{matrix.build-mode}}
 
-          # Pull config from https://github.com/opengovsg/codeql-config/blob/prod/codeql-config.yml
-          config-file: opengovsg/codeql-config/codeql-config.yml@prod
+          # Local copy of https://github.com/opengovsg/codeql-config/blob/prod/codeql-config.yml
+          config-file: ./.github/codeql/codeql-config.yml
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@c3400c2f38909e0dcf3c3a41f2030a8217be5d3e # v3

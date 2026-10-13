@@ -3,13 +3,29 @@
 # See: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file#groups
 #
 # Group order matters: the first matching group wins.
+#
+# Version updates are weekly and capped so they do not flood the PR queue.
+# Packages outside the named groups get their non-major bumps in the
+# npm-minor-and-patch group, which Mergify auto-merges (see .github/mergify.yml);
+# their major bumps stay as individual PRs for human/Devin review. Named groups
+# below are unchanged and may still bundle majors (Mergify's title rule skips
+# those, so they also wait for review).
 
 version: 2
 updates:
   - package-ecosystem: npm
     directory: /
     schedule:
-      interval: daily
+      interval: weekly
+      day: monday
+      time: '09:00'
+      timezone: Asia/Singapore
+    open-pull-requests-limit: 10
+    # Matches the build(deps...) title Mergify keys on and passes commitlint.
+    commit-message:
+      prefix: build
+      prefix-development: build
+      include: scope
     groups:
       # --- Build toolchains (tight coupling) ---
 
@@ -152,6 +168,16 @@ updates:
           - husky
           - lint-staged
 
+      # Catch-all for everything not matched above. Non-major only, so majors
+      # of ungrouped packages still arrive as individual PRs.
+      npm-minor-and-patch:
+        applies-to: version-updates
+        patterns:
+          - '*'
+        update-types:
+          - minor
+          - patch
+
       # --- Security updates: mirror critical toolchains ---
 
       webpack-security:
@@ -188,12 +214,35 @@ updates:
   # Keeps SHA-pinned Actions (see .github/workflows/*.yml) refreshed instead
   # of going stale forever.
   - package-ecosystem: github-actions
-    directory: /
+    directories:
+      - /
+      - /.github/actions/setup
     schedule:
       interval: monthly
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: build
+      include: scope
+    groups:
+      github-actions:
+        patterns:
+          - '*'
 
   # Keeps the digest-pinned base image (see Dockerfile*) refreshed.
   - package-ecosystem: docker
     directory: /
     schedule:
       interval: monthly
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: build
+      include: scope
+    groups:
+      docker-base-images:
+        patterns:
+          - '*'
+    ignore:
+      # Node major upgrades are a deliberate migration (.nvmrc, CI, Docker).
+      - dependency-name: node
+        update-types:
+          - version-update:semver-major
