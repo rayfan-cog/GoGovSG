@@ -1,4 +1,4 @@
-FROM node:24-alpine3.24@sha256:d32cdf619f63fe0471182d08996dd516c6275bb5fd31ae06e55a570bd9e1ad43
+FROM node:26-alpine3.24@sha256:143494b1da2945f061539253adc65e4f1569ddf07da2d384c022c791a9d90a4a
 
 LABEL maintainer="Open Government Products" email="go@open.gov.sg"
 
