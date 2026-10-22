@@ -28,7 +28,8 @@ ASSET_VARIANT=gov pnpm run build   # ~25 s, outputs build/ (server) and dist/ (c
 - Integration (`test/integration`, hits the API directly):
   ```sh
   pnpm run dev:server-only &   # Express only on :8080, ready in ~1.5 min on a cold build
-  # ready when http://localhost:8080/api/user/message answers (401 is fine)
+  # ready when all of these answer (as CI waits for): localhost:8080/api/user/message (401 is fine),
+  # localhost:1080/api/email (maildev), localhost:4566/local-bucket (floci)
   pnpm run test:integration    # seconds
   ```
   `dev:server-only` keeps `NODE_ENV=development`, which disables the OTP rate limit the suite depends on.
